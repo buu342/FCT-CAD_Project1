@@ -163,8 +163,8 @@ void printImg(const uint32_t imgw, const uint32_t imgh, const texel* img)
 
 
 /*==============================
-    shader
-    Performs a gaussian blur, and then desaturation with CUDA
+    shader_pass1
+    Performs a vertical gaussian blur with CUDA
     @param The image array to output to
     @param The image array to read from
     @param The size of the image (in texels)
@@ -174,7 +174,7 @@ void printImg(const uint32_t imgw, const uint32_t imgh, const texel* img)
     @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
-__global__ void shader(texel* out, texel* in, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float desaturation)
+__global__ void shader_pass1(texel* out, texel* in, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter)
 {
     // Calculate the texel coordinate that this thread will modify
     const uint32_t index = blockIdx.x*blockDim.x + threadIdx.x;
@@ -201,13 +201,51 @@ __global__ void shader(texel* out, texel* in, const uint32_t size, const uint32_
         b += scale*ti->b;
         n += scale;
     }
+    n = 1/n;
+
+    // Store this first pass
+    texel* to = &out[index];
+    to->r = r*n;
+    to->g = g*n;
+    to->b = b*n;
+}
+
+
+/*==============================
+    shader_pass2
+    Performs a horizontal gaussian blur, and then desaturation with CUDA
+    @param The image array to output to
+    @param The image array to read from
+    @param The size of the image (in texels)
+    @param The image width (in texels)
+    @param The image height (in texels)
+    @param The gaussian blur matrix
+    @param The amount of desaturation (ranging from 0 to 1).
+==============================*/
+
+__global__ void shader_pass2(texel* img, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float desaturation)
+{
+    // Calculate the texel coordinate that this thread will modify
+    const uint32_t index = blockIdx.x*blockDim.x + threadIdx.x;
+
+    // Ensure we don't go out of bounds
+    if (index >= size)
+        return;
+
+    // Calculate the texel coordinates
+    float r=0, g=0, b=0, n=0;
+    const int idx = index%width;
+    const int idy = index/width;
+    const uint32_t lowerx = max(0, idx-(KERNELRADIUS-1));
+    const uint32_t upperx = min(idx+(KERNELRADIUS-1), width);
+    const uint32_t uppery = width*min((idy+(KERNELRADIUS-1)), height);
 
     // And now a second horizontal pass
     const uint32_t ystart = idy*width;
     for (int x=max(0, idx-(KERNELRADIUS-1)), k=-min(0, idx-(KERNELRADIUS-1)); x<upperx; x++)
     {
         const float scale = filter.data[k++];
-        const texel* ti = &in[x+ystart];
+        const texel* ti = &img[x+ystart];
         r += scale*ti->r;
         g += scale*ti->g;
         b += scale*ti->b;
@@ -218,7 +256,7 @@ __global__ void shader(texel* out, texel* in, const uint32_t size, const uint32_
     // Update the output image's desaturated + blurred texel value 
     const color nr = r*n, ng = g*n, nb = b*n;
     const float grey = (1-desaturation)*(0.3*nr + 0.59*ng + 0.11*nb);
-    texel* to = &out[index];
+    texel* to = &img[index];
     to->r = desaturation*nr + grey;
     to->g = desaturation*ng + grey;
     to->b = desaturation*nb + grey;
@@ -288,11 +326,7 @@ int main(int argc, char* argv[])
 
     // Calculate the gaussian blur matrix
     for (uint32_t x=0; x<KERNELSIZE; x++)
-    {
         filter.data[x] = gaussian(x, KERNELRADIUS-1);
-        printf("%f ", filter.data[x]);
-    }
-    printf("\n");
 
     // Setup CUDA
     cudaGetDeviceProperties(&properties, 0);
@@ -318,8 +352,12 @@ int main(int argc, char* argv[])
     // Get the CPU time after the memory copy
     clock_t ta = clock();
 
-    // Apply a gaussian blur and grayscale color correction
-    shader<<<blockCount, threadCount>>>(d_out, d_in, imgsize, imgw, imgh, filter, 1-saturation);
+    // Apply the first shader pass (Vertical blur)
+    shader_pass1<<<blockCount, threadCount>>>(d_out, d_in, imgsize, imgw, imgh, filter);
+    cudaDeviceSynchronize();
+
+    // Apply the second shader pass (Horizontal blur + Desaturation)
+    shader_pass2<<<blockCount, threadCount>>>(d_out, imgsize, imgw, imgh, filter, 1-saturation);
     cudaDeviceSynchronize();
 
     // Calculate how long the algorithm took

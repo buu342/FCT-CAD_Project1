@@ -27,5 +27,5 @@ In this version, the image data structs were modified for 32-Bit memory alignmen
 ##### V04 - Combined Algorithms
 In this version, both the blur and desaturation algorithms were combined into a single function.
 
-##### V05 - Multipass Blur (UNFINISHED)
+##### V05 - Multipass Blur
 In this version, the blur algorithm was reduced from O(N^2) to O(2N) by leveraging the fact that image blurring kernels are seperable. 
