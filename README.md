@@ -3,6 +3,7 @@ This repository contains the source code for our first CAD project.</br>
 
 The repository is organized as follows:
 
+* `Images` - A collection of .ppm images to test the compiled programs with.
 * `Source Code` - A folder containing the source code for the different versions of our implementations. More information in the [Implementations](#Implementations) section of this readme.  
 * `Tester` - A folder containing the source code for the program that compiles, tests, and outputs the results of every single one of our implementations into a single, easily parsable text file. Compiling this program is as simple as calling make, and executing it is just a matter moving to the output folder (which should be the `Source Code` folder, and running the program.  
 * `Report` - A folder containing our report, both as a `.docx` and as a `.pdf`.</br></br>
@@ -15,7 +16,6 @@ You can compile all the versions at once by running the `makeall.sh` shell scrip
 
 There are 5 main folders, named `Images`, `Original`, `Single Block`, `Multi Block`, and `Shared Memory`. 
 
-* `Images` - A collection of .ppm images to test the compiled programs with.
 * `Original` - The original code, before any improvements are performed. This isn't a 1 to 1 copy of the original source code provided by our professor, it was instead rewritten to make further modifications a lot simpler. Of note, we modified the image data to be organized in a struct instead of an array, and we modified the blur matrix kernel to be calculated manually. This allows for a blur of any size to be applied by modifying the `KERNELRADIUS` macro. The blur and desaturation algorithms themselves, however, are unchanged and copied verbatim from the original source code to not influence the final time results.
 * `Single Block` - Each of our implementations done with the CUDA blocks being calculated in a single dimension.
 * `Multi Block` - Each of our implementations done with the CUDA blocks being calculated in two dimensions.
