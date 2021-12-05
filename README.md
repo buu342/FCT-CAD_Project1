@@ -14,15 +14,12 @@ Inside the `Source Code` folder, you can find many different versions of the pro
 
 You can compile all the versions at once by running the `makeall.sh` shell script.</br>
 
-There are 5 main folders, named `Images`, `Original`, `Single Block`, `Multi Block`, and `Shared Memory`. 
+The versions of each program are as follows:
 
-* `Original` - The original code, before any improvements are performed. This isn't a 1 to 1 copy of the original source code provided by our professor, it was instead rewritten to make further modifications a lot simpler. Of note, we modified the image data to be organized in a struct instead of an array, and we modified the blur matrix kernel to be calculated manually. This allows for a blur of any size to be applied by modifying the `KERNELRADIUS` macro. The blur and desaturation algorithms themselves, however, are unchanged and copied verbatim from the original source code to not influence the final time results.
-* `Single Block` - Each of our implementations done with the CUDA blocks being calculated in a single dimension.
-* `Multi Block` - Each of our implementations done with the CUDA blocks being calculated in two dimensions.
-* `Shared Memory` - Each of our implementations done with the CUDA blocks being calculated in a single dimension and utilizing shared memory.</br></br>
+##### `Original` 
+This contains the original code, before any improvements are performed. This isn't a 1 to 1 copy of the original source code provided by our professor, it was instead rewritten to make further modifications a lot simpler. Of note, we modified the image data to be organized in a struct instead of an array, and we modified the blur matrix kernel to be calculated manually. This allows for a blur of any size to be applied by modifying the `KERNELRADIUS` macro. 
 
-
-Each of our implementations are stored in their own folder inside either `Single Block`, `Multi Block`, or `Shared Memory`. The versions of each program are as follows:
+The blur and desaturation algorithms themselves, however, are unchanged and copied verbatim from the original source code to not influence the final time results.
 
 ##### V01 - CUDA
 This is a very basic port of the code to CUDA. Time is now provided with and without the memory copying operations.

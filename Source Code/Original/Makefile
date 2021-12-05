@@ -1,5 +1,3 @@
-DEBUG = 1
-
 # Define compiler flags based on debug mode being enabled or not
 ifeq ($(DEBUG), 1)
 	CFLAGS = -g

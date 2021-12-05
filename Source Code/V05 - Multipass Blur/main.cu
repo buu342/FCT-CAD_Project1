@@ -14,9 +14,6 @@
               Macros
 *********************************/
 
-// Number of CUDA streams
-#define STREAMCOUNT  4
-
 // Print the image before and after to the console
 #define PRINT_PPM    0
 
@@ -170,7 +167,6 @@ void printImg(const uint32_t imgw, const uint32_t imgh, const texel* img)
     Performs a vertical gaussian blur with CUDA
     @param The image array to output to
     @param The image array to read from
-    @param The stream offset
     @param The size of the image (in texels)
     @param The image width (in texels)
     @param The image height (in texels)
@@ -178,10 +174,10 @@ void printImg(const uint32_t imgw, const uint32_t imgh, const texel* img)
     @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
-__global__ void shader_pass1(texel* out, texel* in, const uint32_t offset, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter)
+__global__ void shader_pass1(texel* out, texel* in, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter)
 {
     // Calculate the texel coordinate that this thread will modify
-    const uint32_t index = offset + blockIdx.x*blockDim.x + threadIdx.x;
+    const uint32_t index = blockIdx.x*blockDim.x + threadIdx.x;
 
     // Ensure we don't go out of bounds
     if (index >= size)
@@ -191,8 +187,6 @@ __global__ void shader_pass1(texel* out, texel* in, const uint32_t offset, const
     float r=0, g=0, b=0, n=0;
     const int idx = index%width;
     const int idy = index/width;
-    const uint32_t lowerx = max(0, idx-(KERNELRADIUS-1));
-    const uint32_t upperx = min(idx+(KERNELRADIUS-1), width);
     const uint32_t uppery = width*min((idy+(KERNELRADIUS-1)), height);
 
     // Perform a first vertical gaussian blur pass
@@ -219,7 +213,7 @@ __global__ void shader_pass1(texel* out, texel* in, const uint32_t offset, const
     shader_pass2
     Performs a horizontal gaussian blur, and then desaturation with CUDA
     @param The image array to output to
-    @param The stream offset
+    @param The image array to read from
     @param The size of the image (in texels)
     @param The image width (in texels)
     @param The image height (in texels)
@@ -227,10 +221,10 @@ __global__ void shader_pass1(texel* out, texel* in, const uint32_t offset, const
     @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
-__global__ void shader_pass2(texel* img, const uint32_t offset, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float desaturation)
+__global__ void shader_pass2(texel* img, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float desaturation)
 {
     // Calculate the texel coordinate that this thread will modify
-    const uint32_t index = offset + blockIdx.x*blockDim.x + threadIdx.x;
+    const uint32_t index = blockIdx.x*blockDim.x + threadIdx.x;
 
     // Ensure we don't go out of bounds
     if (index >= size)
@@ -240,9 +234,7 @@ __global__ void shader_pass2(texel* img, const uint32_t offset, const uint32_t s
     float r=0, g=0, b=0, n=0;
     const int idx = index%width;
     const int idy = index/width;
-    const uint32_t lowerx = max(0, idx-(KERNELRADIUS-1));
     const uint32_t upperx = min(idx+(KERNELRADIUS-1), width);
-    const uint32_t uppery = width*min((idy+(KERNELRADIUS-1)), height);
 
     // And now a second horizontal pass
     const uint32_t ystart = idy*width;
@@ -293,8 +285,7 @@ float gaussian(const float x, const float y) // I tried to inline this, but appa
 int main(int argc, char* argv[]) 
 {
     struct cudaDeviceProp properties;
-    uint32_t streamSize;
-    uint32_t threadCount, blockCount, streamCount;
+    uint32_t threadCount, blockCount;
     uint32_t imgh, imgw, imgsize;
     uint32_t texelsize;
     texel* img;
@@ -336,6 +327,8 @@ int main(int argc, char* argv[])
     // Setup CUDA
     cudaGetDeviceProperties(&properties, 0);
     threadCount = fmin(imgsize, properties.maxThreadsPerBlock);
+    blockCount = (int)ceil(((float)(imgsize))/threadCount);
+    printf("Creating kernel with %u blocks of %u threads each\n", blockCount, threadCount); 
 
     // Allocate memory for the outputted image data buffer
     texel *out = (texel*)malloc(imgsize*sizeof(texel));
@@ -346,43 +339,25 @@ int main(int argc, char* argv[])
     cudaMalloc(&d_in, imgsize*sizeof(texel));
     cudaMalloc(&d_out, imgsize*sizeof(texel));
 
-    // Calculate the number of streams we'll need
-    streamCount = STREAMCOUNT;
-    streamSize = ceil(((float)imgsize)/streamCount);
-    blockCount = ceil(((float)streamSize)/threadCount);
-    cudaStream_t* streams = (cudaStream_t*)malloc(streamCount*sizeof(cudaStream_t));
-    printf("Creating kernel with %u streams containing %u blocks of %u threads each\n", streamCount, blockCount, threadCount); 
-
     // Get the current CPU time
     clock_t t = clock();
 
+    // Copy our image data to the GPU
+    cudaMemcpy(d_in, img, imgsize*sizeof(texel), cudaMemcpyHostToDevice);
+
+    // Get the CPU time after the memory copy
+    clock_t ta = clock();
 
     // Apply the first shader pass (Vertical blur)
-    int lastMemcpyOffset = 0;
-    for (int i=0; i<streamCount; i++)
-    {
-        int offset = i*streamSize;
-        int memcpySize = streamSize + imgw*(KERNELRADIUS-1)+(KERNELRADIUS-1);
-
-        // Create the stream and launch the kernel
-        cudaStreamCreate(&streams[i]);
-        cudaMemcpyAsync(d_in+lastMemcpyOffset, img+lastMemcpyOffset, fmin(memcpySize, imgsize-lastMemcpyOffset)*sizeof(texel), cudaMemcpyHostToDevice, streams[i]);
-        shader_pass1<<<blockCount, threadCount, 0, streams[i]>>>(d_out, d_in, offset, imgsize, imgw, imgh, filter);
-
-        // Calculate the memory copy offsets
-        lastMemcpyOffset += memcpySize;
-    }
+    shader_pass1<<<blockCount, threadCount>>>(d_out, d_in, imgsize, imgw, imgh, filter);
+    cudaDeviceSynchronize();
 
     // Apply the second shader pass (Horizontal blur + Desaturation)
-    for (int i=0; i<streamCount; i++)
-    {
-        int offset = i*streamSize;
-
-        // Launch the kernel and download the result
-        shader_pass2<<<blockCount, threadCount, 0, streams[i]>>>(d_out, offset, imgsize, imgw, imgh, filter, 1-saturation);
-        cudaMemcpyAsync(out+offset, d_out+offset, fmin(streamSize, imgsize-offset)*sizeof(texel), cudaMemcpyDeviceToHost, streams[i]);
-    }
+    shader_pass2<<<blockCount, threadCount>>>(d_out, imgsize, imgw, imgh, filter, 1-saturation);
     cudaDeviceSynchronize();
+
+    // Calculate how long the algorithm took
+    ta = clock()-ta;
 
     // Check if the kernel even executed
     cudaError_t err=cudaGetLastError();
@@ -392,9 +367,12 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
+    // Get the calculated value from the GPU
+    cudaMemcpy(out, d_out, imgsize*sizeof(texel), cudaMemcpyDeviceToHost);
+
     // Calculate and print how long it took to execute 
     t = clock()-t;
-    printf("time %f ms\n", t/(double)(CLOCKS_PER_SEC/1000));
+    printf("time %f ms (algorithm %f ms)\n", t/(double)(CLOCKS_PER_SEC/1000), ta/(double)(CLOCKS_PER_SEC/1000));
 
     // Write the output to a new image file
     #if PRINT_PPM

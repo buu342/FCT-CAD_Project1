@@ -3,7 +3,7 @@
 clear
 echo "\033[33;40mCompiling all programs\033[0m"
 
-for d in ./*/*/ ; do 
+for d in ./*/ ; do 
 (
 	cd "$d" 
 	echo ""
@@ -11,11 +11,6 @@ for d in ./*/*/ ; do
 	make
 ); 
 done
-
-cd "./Original/"
-echo ""
-echo "\033[34;40mMaking Original Program\033[0m"
-make
 
 echo ""
 echo "\033[32;40mFinished!\033[0m"
