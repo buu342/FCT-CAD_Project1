@@ -36,8 +36,14 @@ In this version, both the blur and desaturation algorithms were combined into a 
 ##### V05 - Multipass Blur
 In this version, the blur algorithm was reduced from O(N^2) to O(2N) by leveraging the fact that image blurring kernels are seperable. Only benefitial for large blurring matricies.
 
+##### V05 - Multipass Blur (Shared Memory) (UNFINISHED)
+This version is the same as V05, except it utilizes shared memory to reduce having to access global memory for neighboring texels.
+
 ##### V06 - Streams
 In this version, CUDA was set up to utilize streams. The number of streams can be changed by modifying the `STREAMCOUNT` macro, although by our testing, 4 seems to be the sweet spot.
 
-##### V07 - Streams (Single Pass Blur)
+##### V06 - Streams (Single Pass Blur)
 This version is the same as V04, but set up to use CUDA streams. It exists merely to compare against the results of V06.
+
+##### V06 - Streams (mallocHost)
+This version is the same as V06, but cudaMalloc calls were replaced with cudaMallocHost calls. This was to test the performance impact of using pinned memory.
