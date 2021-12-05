@@ -18,7 +18,7 @@
 #define PRINT_PPM    0
 
 // The radius of the blur matrix kernel
-#define KERNELRADIUS 10
+#define KERNELRADIUS 2
 
 // Useful constants. Don't touch
 #define KERNELSIZE   ((2*KERNELRADIUS)-1)
