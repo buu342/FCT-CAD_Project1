@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 		for (int i=0; i<repeats; i++)
 		{
 			// Execute the program
-			sprintf(path, "nvprof --log-file \""RESULTS_FOLDER"%s/results_%02d.txt\" \""PROGRAMS_FOLDER"%s/"PROGRAM_NAME"\" \""IMAGES_FOLDER"%s\" ", fname, i+1, fname, image);
+			sprintf(path, "nvprof \""PROGRAMS_FOLDER"%s/"PROGRAM_NAME"\" \""IMAGES_FOLDER"%s\" >> \""RESULTS_FOLDER"%s/results_%02d.txt\" 2>&1", fname, image, fname, i+1);
 			ret = system(path);
 		}
 	}
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 		// Print the times
 		printf(CR_GREEN"%s"CR_RESET" - %f ms", fname, time/repeats);
 		if (algtime != 0)
-			printf("(%f ms)", algtime/repeats);
+			printf(" (%f ms)", algtime/repeats);
 		printf("\n");
 	}
 
