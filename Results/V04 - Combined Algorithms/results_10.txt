@@ -1,0 +1,23 @@
+==987297== NVPROF is profiling process 987297, command: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+==987297== Profiling application: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+PPM image 1920x1364. Texel size = 255
+Creating kernel with 2558 blocks of 1024 threads each
+time 12.035000 ms (algorithm 2.730000 ms)
+==987297== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   50.56%  5.1485ms         1  5.1485ms  5.1485ms  5.1485ms  [CUDA memcpy DtoH]
+                   25.36%  2.5828ms         1  2.5828ms  2.5828ms  2.5828ms  shader(texel*, texel*, unsigned int, unsigned int, unsigned int, blurMatrix, float)
+                   24.08%  2.4519ms         1  2.4519ms  2.4519ms  2.4519ms  [CUDA memcpy HtoD]
+      API calls:   95.89%  296.92ms         2  148.46ms  157.85us  296.77ms  cudaMalloc
+                    3.00%  9.2848ms         2  4.6424ms  2.7201ms  6.5647ms  cudaMemcpy
+                    0.85%  2.6450ms         1  2.6450ms  2.6450ms  2.6450ms  cudaDeviceSynchronize
+                    0.10%  303.92us         1  303.92us  303.92us  303.92us  cuDeviceTotalMem
+                    0.07%  216.00us       101  2.1380us     266ns  88.296us  cuDeviceGetAttribute
+                    0.06%  176.82us         1  176.82us  176.82us  176.82us  cudaGetDeviceProperties
+                    0.02%  47.144us         1  47.144us  47.144us  47.144us  cudaLaunchKernel
+                    0.01%  35.896us         1  35.896us  35.896us  35.896us  cuDeviceGetName
+                    0.00%  13.239us         1  13.239us  13.239us  13.239us  cuDeviceGetPCIBusId
+                    0.00%  2.0400us         3     680ns     367ns  1.2700us  cuDeviceGetCount
+                    0.00%  1.3960us         2     698ns     301ns  1.0950us  cuDeviceGet
+                    0.00%     695ns         1     695ns     695ns     695ns  cudaGetLastError
+                    0.00%     560ns         1     560ns     560ns     560ns  cuDeviceGetUuid

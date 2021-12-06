@@ -1,0 +1,23 @@
+==987200== NVPROF is profiling process 987200, command: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+PPM image 1920x1364. Texel size = 255
+Creating kernel with 2558 blocks of 1024 threads each
+time 14.489000 ms (algorithm 2.697000 ms)
+==987200== Profiling application: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+==987200== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   56.06%  7.0158ms         1  7.0158ms  7.0158ms  7.0158ms  [CUDA memcpy DtoH]
+                   23.29%  2.9142ms         1  2.9142ms  2.9142ms  2.9142ms  [CUDA memcpy HtoD]
+                   20.65%  2.5838ms         1  2.5838ms  2.5838ms  2.5838ms  shader(texel*, texel*, unsigned int, unsigned int, unsigned int, blurMatrix, float)
+      API calls:   94.79%  277.55ms         2  138.77ms  163.06us  277.39ms  cudaMalloc
+                    4.02%  11.773ms         2  5.8863ms  3.1854ms  8.5873ms  cudaMemcpy
+                    0.90%  2.6452ms         1  2.6452ms  2.6452ms  2.6452ms  cudaDeviceSynchronize
+                    0.11%  331.01us         1  331.01us  331.01us  331.01us  cuDeviceTotalMem
+                    0.08%  228.69us       101  2.2640us     273ns  93.362us  cuDeviceGetAttribute
+                    0.06%  188.36us         1  188.36us  188.36us  188.36us  cudaGetDeviceProperties
+                    0.02%  44.633us         1  44.633us  44.633us  44.633us  cudaLaunchKernel
+                    0.01%  39.941us         1  39.941us  39.941us  39.941us  cuDeviceGetName
+                    0.00%  13.255us         1  13.255us  13.255us  13.255us  cuDeviceGetPCIBusId
+                    0.00%  1.9840us         3     661ns     395ns  1.1760us  cuDeviceGetCount
+                    0.00%  1.4600us         2     730ns     281ns  1.1790us  cuDeviceGet
+                    0.00%     654ns         1     654ns     654ns     654ns  cudaGetLastError
+                    0.00%     535ns         1     535ns     535ns     535ns  cuDeviceGetUuid

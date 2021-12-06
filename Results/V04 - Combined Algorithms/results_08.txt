@@ -1,0 +1,23 @@
+==987268== NVPROF is profiling process 987268, command: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+PPM image 1920x1364. Texel size = 255
+Creating kernel with 2558 blocks of 1024 threads each
+time 14.186000 ms (algorithm 2.694000 ms)
+==987268== Profiling application: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+==987268== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   56.54%  7.1652ms         1  7.1652ms  7.1652ms  7.1652ms  [CUDA memcpy DtoH]
+                   23.09%  2.9263ms         1  2.9263ms  2.9263ms  2.9263ms  [CUDA memcpy HtoD]
+                   20.37%  2.5821ms         1  2.5821ms  2.5821ms  2.5821ms  shader(texel*, texel*, unsigned int, unsigned int, unsigned int, blurMatrix, float)
+      API calls:   94.73%  289.50ms         2  144.75ms  159.66us  289.34ms  cudaMalloc
+                    3.86%  11.792ms         2  5.8960ms  3.1856ms  8.6064ms  cudaMemcpy
+                    0.86%  2.6341ms         1  2.6341ms  2.6341ms  2.6341ms  cudaDeviceSynchronize
+                    0.14%  430.79us         1  430.79us  430.79us  430.79us  cuDeviceTotalMem
+                    0.13%  401.43us       101  3.9740us     365ns  166.67us  cuDeviceGetAttribute
+                    0.13%  398.65us         1  398.65us  398.65us  398.65us  cuDeviceGetName
+                    0.12%  368.09us         1  368.09us  368.09us  368.09us  cudaGetDeviceProperties
+                    0.02%  52.850us         1  52.850us  52.850us  52.850us  cudaLaunchKernel
+                    0.00%  12.501us         1  12.501us  12.501us  12.501us  cuDeviceGetPCIBusId
+                    0.00%  2.9250us         3     975ns     573ns  1.7120us  cuDeviceGetCount
+                    0.00%  1.8220us         2     911ns     394ns  1.4280us  cuDeviceGet
+                    0.00%     893ns         1     893ns     893ns     893ns  cudaGetLastError
+                    0.00%     761ns         1     761ns     761ns     761ns  cuDeviceGetUuid

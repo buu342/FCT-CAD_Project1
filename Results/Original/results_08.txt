@@ -1,0 +1,3 @@
+PPM image 1920x1364. Texel size = 255
+time 207.436000 ms
+======== Warning: No profile data collected.

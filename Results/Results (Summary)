@@ -1,0 +1,10 @@
+Original 							 - 206.890000 ms
+V01 - CUDA 							 - 40.954500 ms (9.565200 ms)
+V02 - New Algorithms 				 - 37.979100 ms (5.626100 ms)
+V03 - Memory Alignment 				 - 15.066300 ms (3.454500 ms)
+V04 - Combined Algorithms 			 - 14.268100 ms (2.703700 ms)
+V05 - Multipass Blur 				 - 14.132700 ms (2.862300 ms)
+V05 - Multipass Blur (Shared Memory) - 17.688400 ms (5.880400 ms)
+V06 - Streams 						 - 13.451900 ms
+V06 - Streams (MallocHost) 			 - 67.261600 ms
+V06 - Streams (Single Pass) 		 - 14.474200 ms

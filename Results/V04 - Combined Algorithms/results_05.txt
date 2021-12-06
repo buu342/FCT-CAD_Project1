@@ -1,0 +1,23 @@
+==987228== NVPROF is profiling process 987228, command: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+PPM image 1920x1364. Texel size = 255
+Creating kernel with 2558 blocks of 1024 threads each
+time 14.641000 ms (algorithm 2.698000 ms)
+==987228== Profiling application: ./../Source Code/V04 - Combined Algorithms/program ./../Images/tram.ppm
+==987228== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   57.35%  7.4349ms         1  7.4349ms  7.4349ms  7.4349ms  [CUDA memcpy DtoH]
+                   22.73%  2.9460ms         1  2.9460ms  2.9460ms  2.9460ms  [CUDA memcpy HtoD]
+                   19.92%  2.5824ms         1  2.5824ms  2.5824ms  2.5824ms  shader(texel*, texel*, unsigned int, unsigned int, unsigned int, blurMatrix, float)
+      API calls:   95.07%  300.76ms         2  150.38ms  171.49us  300.59ms  cudaMalloc
+                    3.76%  11.886ms         2  5.9428ms  3.2215ms  8.6641ms  cudaMemcpy
+                    0.83%  2.6406ms         1  2.6406ms  2.6406ms  2.6406ms  cudaDeviceSynchronize
+                    0.14%  427.43us         1  427.43us  427.43us  427.43us  cuDeviceTotalMem
+                    0.09%  286.54us       101  2.8360us     356ns  116.68us  cuDeviceGetAttribute
+                    0.07%  237.09us         1  237.09us  237.09us  237.09us  cudaGetDeviceProperties
+                    0.02%  48.927us         1  48.927us  48.927us  48.927us  cudaLaunchKernel
+                    0.01%  46.610us         1  46.610us  46.610us  46.610us  cuDeviceGetName
+                    0.00%  14.323us         1  14.323us  14.323us  14.323us  cuDeviceGetPCIBusId
+                    0.00%  3.0240us         3  1.0080us     597ns  1.8090us  cuDeviceGetCount
+                    0.00%  1.9100us         2     955ns     408ns  1.5020us  cuDeviceGet
+                    0.00%     891ns         1     891ns     891ns     891ns  cuDeviceGetUuid
+                    0.00%     738ns         1     738ns     738ns     738ns  cudaGetLastError
