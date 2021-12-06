@@ -15,7 +15,7 @@
 *********************************/
 
 // Number of CUDA streams
-#define STREAMCOUNT  4
+#define STREAMCOUNT  2
 
 // Print the image before and after to the console
 #define PRINT_PPM    0
