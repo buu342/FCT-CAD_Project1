@@ -5,7 +5,8 @@ The repository is organized as follows:
 
 * `Images` - A collection of .ppm images to test the compiled programs with.
 * `Source Code` - A folder containing the source code for the different versions of our implementations. More information in the [Implementations](#Implementations) section of this readme.  
-* `Tester` - A folder containing the source code for the program that compiles, tests, and outputs the results of every single one of our implementations into a single, easily parsable text file. Compiling this program is as simple as calling make, and executing it is just a matter moving to the output folder (which should be the `Source Code` folder, and running the program.  
+* `Autotester` - A folder containing the source code for the program that compiles, tests, and outputs the results of every single one of our implementations into a single, easily parsable text file. Compiling this program is as simple as calling `make`, and executing it is as simple as calling `autotester <imagename> <number_of_iterations>`.
+* `Results` - A folder where results from the autotester are outputted to.
 * `Report` - A folder containing our report, both as a `.docx` and as a `.pdf`.</br></br>
 
 ### Implementations
