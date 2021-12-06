@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 			terminate("Error: Could not find '"PROGRAM_NAME"'. Did you remember to compile them all?\n");
 
 		// Make the results directory
-		sprintf(path, "mkdir "RESULTS_FOLDER"%s/", fname);
+		sprintf(path, "mkdir \""RESULTS_FOLDER"%s/\"", fname);
 		ret = system(path);
 
 		// Run the program a bunch of times
