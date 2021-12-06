@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 		for (int i=0; i<repeats; i++)
 		{
 			// Execute the program
-			sprintf(path, "nvprof \""PROGRAMS_FOLDER"%s/"PROGRAM_NAME"\" \""IMAGES_FOLDER"%s\" > \""RESULTS_FOLDER"%s/results_%02d.txt\"", fname, image, fname, i+1);
+			sprintf(path, "nvprof --log-file \""RESULTS_FOLDER"%s/results_%02d.txt\" \""PROGRAMS_FOLDER"%s/"PROGRAM_NAME"\" \""IMAGES_FOLDER"%s\" ", fname, i+1, fname, image);
 			ret = system(path);
 		}
 	}
@@ -157,12 +157,11 @@ int main(int argc, char* argv[])
 
 			// Continue reading the string
 			substr = strtok (NULL, " "); // "ms"
-			substr = strtok (NULL, " "); // EOL? Or algorithm 
+			substr = strtok (NULL, " "); // EOL? Or (average 
 
 			// Check for average time
 			if (substr != NULL)
 			{
-				substr = strtok (NULL, " "); // "(average"
 				substr = strtok (NULL, " "); // The average time in ms
 				algtime += atof(substr);
 			}
