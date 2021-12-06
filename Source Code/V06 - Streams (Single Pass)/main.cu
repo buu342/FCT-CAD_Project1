@@ -175,10 +175,11 @@ void printImg(const uint32_t imgw, const uint32_t imgh, const texel* img)
     @param The image width (in texels)
     @param The image height (in texels)
     @param The gaussian blur matrix
+    @param The amount of saturation (ranging from 0 to 1).
     @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
-__global__ void shader(texel* out, texel* in, const uint32_t offset, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float desaturation)
+__global__ void shader(texel* out, texel* in, const uint32_t offset, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float saturation, const float desaturation)
 {
     // Calculate the texel coordinate that this thread will modify
     const uint32_t index = offset + blockIdx.x*blockDim.x + threadIdx.x;
@@ -212,7 +213,7 @@ __global__ void shader(texel* out, texel* in, const uint32_t offset, const uint3
 
     // Update the output image's desaturated + blurred texel value 
     const color nr = r*n, ng = g*n, nb = b*n;
-    const float grey = (1-desaturation)*(0.3*nr + 0.59*ng + 0.11*nb);
+    const float grey = saturation*(0.3*nr + 0.59*ng + 0.11*nb);
     texel* to = &out[index];
     to->r = desaturation*nr + grey;
     to->g = desaturation*ng + grey;
@@ -320,7 +321,7 @@ int main(int argc, char* argv[])
         // Create the stream and launch the kernel
         cudaStreamCreate(&streams[i]);
         cudaMemcpyAsync(d_in+lastMemcpyOffset, img+lastMemcpyOffset, fmin(memcpySize, imgsize-lastMemcpyOffset)*sizeof(texel), cudaMemcpyHostToDevice, streams[i]);
-        shader<<<blockCount, threadCount, 0, streams[i]>>>(d_out, d_in, offset, imgsize, imgw, imgh, filter, 1-saturation);
+        shader<<<blockCount, threadCount, 0, streams[i]>>>(d_out, d_in, offset, imgsize, imgw, imgh, filter, saturation, 1-saturation);
         cudaMemcpyAsync(out+offset, d_out+offset, fmin(streamSize, imgsize-offset)*sizeof(texel), cudaMemcpyDeviceToHost, streams[i]);
 
         // Calculate the memory copy offsets

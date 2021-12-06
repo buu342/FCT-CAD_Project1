@@ -171,7 +171,6 @@ void printImg(const uint32_t imgw, const uint32_t imgh, const texel* img)
     @param The image width (in texels)
     @param The image height (in texels)
     @param The gaussian blur matrix
-    @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
 __global__ void shader_pass1(texel* out, texel* in, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter)
@@ -218,10 +217,11 @@ __global__ void shader_pass1(texel* out, texel* in, const uint32_t size, const u
     @param The image width (in texels)
     @param The image height (in texels)
     @param The gaussian blur matrix
+    @param The amount of saturation (ranging from 0 to 1).
     @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
-__global__ void shader_pass2(texel* img, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float desaturation)
+__global__ void shader_pass2(texel* img, const uint32_t size, const uint32_t width, const uint32_t height, const blurMatrix filter, const float saturation, const float desaturation)
 {
     // Calculate the texel coordinate that this thread will modify
     const uint32_t index = blockIdx.x*blockDim.x + threadIdx.x;
@@ -251,7 +251,7 @@ __global__ void shader_pass2(texel* img, const uint32_t size, const uint32_t wid
 
     // Update the output image's desaturated + blurred texel value 
     const color nr = r*n, ng = g*n, nb = b*n;
-    const float grey = (1-desaturation)*(0.3*nr + 0.59*ng + 0.11*nb);
+    const float grey = saturation*(0.3*nr + 0.59*ng + 0.11*nb);
     texel* to = &img[index];
     to->r = desaturation*nr + grey;
     to->g = desaturation*ng + grey;
@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
     cudaDeviceSynchronize();
 
     // Apply the second shader pass (Horizontal blur + Desaturation)
-    shader_pass2<<<blockCount, threadCount>>>(d_out, imgsize, imgw, imgh, filter, 1-saturation);
+    shader_pass2<<<blockCount, threadCount>>>(d_out, imgsize, imgw, imgh, filter, saturation, 1-saturation);
     cudaDeviceSynchronize();
 
     // Calculate how long the algorithm took

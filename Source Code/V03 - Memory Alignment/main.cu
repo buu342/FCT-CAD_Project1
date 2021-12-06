@@ -219,10 +219,11 @@ __global__ void areaFilter(texel* out, texel* in, const uint32_t size, const uin
     @param The image array to output to
     @param The image array to read from
     @param The size of the image (in texels)
+    @param The amount of saturation (ranging from 0 to 1).
     @param The amount of desaturation (ranging from 0 to 1).
 ==============================*/
 
-__global__ void pointFilter(texel* out, const uint32_t size, const float desaturation)
+__global__ void pointFilter(texel* out, const uint32_t size, const float saturation, const float desaturation)
 {
     // Calculate the texel coordinate that this thread will modify
     const unsigned int index = blockIdx.x*blockDim.x + threadIdx.x;
@@ -236,7 +237,7 @@ __global__ void pointFilter(texel* out, const uint32_t size, const float desatur
     const color r = ti->r;
     const color g = ti->g;
     const color b = ti->b;
-    const float grey = (1-desaturation)*(0.3*r + 0.59*g + 0.11*b);
+    const float grey = saturation*(0.3*r + 0.59*g + 0.11*b);
 
     // Update the output image's texel value
     texel* to = &out[index];
@@ -341,7 +342,7 @@ int main(int argc, char* argv[])
     cudaDeviceSynchronize();
 
     // Apply a grayscale color correction
-    pointFilter<<<blockCount, threadCount>>>(d_out, imgsize, 1-saturation);
+    pointFilter<<<blockCount, threadCount>>>(d_out, imgsize, saturation, 1-saturation);
     cudaDeviceSynchronize();
 
     // Calculate how long the algorithm took
